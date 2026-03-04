@@ -33,116 +33,29 @@ def request_admin():
 LOG_FILE = "spoofer_log.json"
 
 # ===============================
-# Peripheral brand profiles
+# Generic peripheral replacements
 # ===============================
-PERIPHERAL_BRANDS = {
-    "razer": {
-        "name": "Razer",
-        "mice": [
-            ("Razer DeathAdder V3 Pro", "RZ01-0463"),
-            ("Razer Viper V3 HyperSpeed", "RZ01-0490"),
-            ("Razer Basilisk V3 Pro", "RZ01-0472"),
-            ("Razer Cobra Pro", "RZ01-0481"),
-            ("Razer Naga V2 Pro", "RZ01-0479"),
-        ],
-        "keyboards": [
-            ("Razer Huntsman V3 Pro", "RZ03-0541"),
-            ("Razer BlackWidow V4 Pro", "RZ03-0512"),
-            ("Razer DeathStalker V2 Pro", "RZ03-0453"),
-            ("Razer Ornata V3 TKL", "RZ03-0538"),
-        ],
-        "headsets": [
-            ("Razer BlackShark V2 Pro", "RZ04-0452"),
-            ("Razer Kraken V4 Pro", "RZ04-0510"),
-            ("Razer Barracuda Pro", "RZ04-0440"),
-        ],
-        "controllers": [
-            ("Razer Wolverine V2 Pro", "RZ06-0470"),
-        ],
-        "manufacturer": "Razer Inc.",
-    },
-    "logitech": {
-        "name": "Logitech",
-        "mice": [
-            ("Logitech G Pro X Superlight 2", "910-006787"),
-            ("Logitech G502 X Plus", "910-006160"),
-            ("Logitech G305 Lightspeed", "910-005280"),
-            ("Logitech G703 Lightspeed", "910-005638"),
-        ],
-        "keyboards": [
-            ("Logitech G Pro X TKL", "920-012136"),
-            ("Logitech G715 Wireless", "920-010452"),
-            ("Logitech G915 X Lightspeed", "920-012200"),
-        ],
-        "headsets": [
-            ("Logitech G Pro X 2 Lightspeed", "981-001263"),
-            ("Logitech G735 Wireless", "981-000978"),
-        ],
-        "controllers": [
-            ("Logitech F710 Wireless Gamepad", "940-000117"),
-        ],
-        "manufacturer": "Logitech Inc.",
-    },
-    "corsair": {
-        "name": "Corsair",
-        "mice": [
-            ("Corsair M75 Air Wireless", "CH-931A11"),
-            ("Corsair Dark Core RGB Pro SE", "CH-9315511"),
-            ("Corsair Scimitar RGB Elite", "CH-9304211"),
-        ],
-        "keyboards": [
-            ("Corsair K100 RGB", "CH-912A01A"),
-            ("Corsair K70 MAX RGB", "CH-910961A"),
-            ("Corsair K65 Plus Wireless", "CH-910D01"),
-        ],
-        "headsets": [
-            ("Corsair Virtuoso Pro", "CA-9011370"),
-            ("Corsair HS80 Max Wireless", "CA-9011295"),
-        ],
-        "controllers": [],
-        "manufacturer": "Corsair Memory Inc.",
-    },
-    "steelseries": {
-        "name": "SteelSeries",
-        "mice": [
-            ("SteelSeries Aerox 5 Wireless", "62406"),
-            ("SteelSeries Prime Wireless", "62593"),
-            ("SteelSeries Rival 650 Wireless", "62456"),
-        ],
-        "keyboards": [
-            ("SteelSeries Apex Pro TKL (2023)", "64856"),
-            ("SteelSeries Apex 9 Mini", "64837"),
-        ],
-        "headsets": [
-            ("SteelSeries Arctis Nova Pro Wireless", "61520"),
-            ("SteelSeries Arctis Nova 7 Wireless", "61553"),
-        ],
-        "controllers": [],
-        "manufacturer": "SteelSeries ApS",
-    },
-    "generic": {
-        "name": "Generic",
-        "mice": [
-            ("USB Optical Mouse", "HID-0001"),
-            ("Standard USB Mouse", "HID-0002"),
-            ("Wireless Desktop Mouse", "HID-0003"),
-        ],
-        "keyboards": [
-            ("Standard 101/102-Key Keyboard", "HID-1001"),
-            ("USB Keyboard Device", "HID-1002"),
-            ("HID Keyboard Device", "HID-1003"),
-        ],
-        "headsets": [
-            ("USB Audio Device", "USB-AUD-001"),
-            ("Generic USB Audio", "USB-AUD-002"),
-        ],
-        "controllers": [
-            ("USB Gamepad", "HID-GP-001"),
-            ("Generic USB Joystick", "HID-GP-002"),
-        ],
-        "manufacturer": "Generic",
-    },
+GENERIC_DEVICES = {
+    "mice": [
+        ("USB Optical Mouse", "HID-0001"),
+        ("Standard USB Mouse", "HID-0002"),
+        ("HID-compliant mouse", "HID-0003"),
+    ],
+    "keyboards": [
+        ("Standard 101/102-Key Keyboard", "HID-1001"),
+        ("USB Keyboard Device", "HID-1002"),
+        ("HID Keyboard Device", "HID-1003"),
+    ],
+    "headsets": [
+        ("USB Audio Device", "USB-AUD-001"),
+        ("High Definition Audio Device", "USB-AUD-002"),
+    ],
+    "controllers": [
+        ("USB Gamepad", "HID-GP-001"),
+        ("HID-compliant game controller", "HID-GP-002"),
+    ],
 }
+GENERIC_MANUFACTURER = "(Standard system devices)"
 
 
 def generate_random_mac():
@@ -255,7 +168,7 @@ class SystemSpoofer:
 
     # ---- Machine GUID ----
     def spoof_guid(self):
-        """Spoof the Machine GUID (used by many apps and anti-cheats on Win11)."""
+        """Spoof the Machine GUID."""
         print("\n[*] Spoofing Machine GUID...")
         new_guid = str(uuid.uuid4())
         path = r"SOFTWARE\Microsoft\Cryptography"
@@ -392,7 +305,7 @@ class SystemSpoofer:
 
     # ---- Windows Install Date ----
     def spoof_install_date(self):
-        """Randomize the Windows installation date (tracked by anti-cheats)."""
+        """Randomize the Windows installation date."""
         print("\n[*] Spoofing Install Date...")
 
         # Random date between 2022 and now
@@ -656,82 +569,40 @@ class SystemSpoofer:
         return success
 
     # ---- Peripheral Drivers ----
-    def spoof_peripherals(self, brand_key=None):
-
+    def spoof_peripherals(self):
         """
-        Spoof peripheral device drivers (mouse, keyboard, headset, controller).
-        Masks real device info with a chosen brand profile (Razer, Logitech, etc.)
-        in the Windows 11 USB and HID registry enumerations.
+        Detect real peripheral devices (mouse, keyboard, headset, controller)
+        and replace their driver descriptions with generic names.
         """
         print("\n[*] Spoofing Peripheral Drivers...")
-
-        # Brand selection
-        if not brand_key:
-            print("\n  Available brand profiles:")
-            print("  ─────────────────────────")
-            brands_list = list(PERIPHERAL_BRANDS.keys())
-            for idx, key in enumerate(brands_list, 1):
-                brand = PERIPHERAL_BRANDS[key]
-                total = (
-                    len(brand["mice"])
-                    + len(brand["keyboards"])
-                    + len(brand["headsets"])
-                    + len(brand["controllers"])
-                )
-                print(f"    {idx}. {brand['name']} ({total} device profiles)")
-            print()
-            choice = input("  Select brand (1-5): ").strip()
-            try:
-                brand_key = brands_list[int(choice) - 1]
-            except (ValueError, IndexError):
-                brand_key = "razer"
-                print(f"  [i] Invalid choice, defaulting to Razer")
-
-        brand = PERIPHERAL_BRANDS[brand_key]
-        print(f"  [i] Using brand profile: {brand['name']}")
+        print("  [i] Detecting connected peripherals and masking with generic drivers...")
 
         success_count = 0
 
-        # ── HID devices (mice, keyboards) ──
+        # HID devices (mice, keyboards)
         hid_base = r"SYSTEM\CurrentControlSet\Enum\HID"
-        success_count += self._spoof_hid_devices(
-            hid_base, brand, "mice", "keyboards"
-        )
+        success_count += self._spoof_hid_devices(hid_base)
 
-        # ── USB devices (headsets, controllers, and general USB peripherals) ──
+        # USB devices (headsets, controllers, general USB peripherals)
         usb_base = r"SYSTEM\CurrentControlSet\Enum\USB"
-        success_count += self._spoof_usb_devices(usb_base, brand)
+        success_count += self._spoof_usb_devices(usb_base)
 
-        # ── USB Audio (headsets) ──
-        success_count += self._spoof_usb_audio(brand)
+        # USB Audio (headsets)
+        success_count += self._spoof_usb_audio()
 
-        # ── HID class driver descriptions ──
+        # HID class driver descriptions
         hid_class_paths = [
-            # Mouse class
-            (
-                r"SYSTEM\CurrentControlSet\Control\Class\{4D36E96F-E325-11CE-BFC1-08002BE10318}",
-                "mice",
-            ),
-            # Keyboard class
-            (
-                r"SYSTEM\CurrentControlSet\Control\Class\{4D36E96B-E325-11CE-BFC1-08002BE10318}",
-                "keyboards",
-            ),
-            # HID class
-            (
-                r"SYSTEM\CurrentControlSet\Control\Class\{745A17A0-74D3-11D0-B6FE-00A0C90F57DA}",
-                "mice",
-            ),
+            (r"SYSTEM\CurrentControlSet\Control\Class\{4D36E96F-E325-11CE-BFC1-08002BE10318}", "mice"),
+            (r"SYSTEM\CurrentControlSet\Control\Class\{4D36E96B-E325-11CE-BFC1-08002BE10318}", "keyboards"),
+            (r"SYSTEM\CurrentControlSet\Control\Class\{745A17A0-74D3-11D0-B6FE-00A0C90F57DA}", "mice"),
         ]
 
         for class_path, device_type in hid_class_paths:
-            success_count += self._spoof_class_driver(
-                class_path, brand, device_type
-            )
+            success_count += self._spoof_class_driver(class_path, device_type)
 
         if success_count > 0:
             print(f"\n  [+] Successfully spoofed {success_count} peripheral entries")
-            print(f"  [+] All peripherals masked as: {brand['name']}")
+            print("  [+] All peripherals masked as generic devices")
             print("  [!] A restart is required for all changes to take effect.")
         else:
             print("  [-] No peripheral entries were modified")
@@ -739,8 +610,8 @@ class SystemSpoofer:
 
         return success_count > 0
 
-    def _spoof_hid_devices(self, hid_base, brand, *device_types):
-        """Enumerate HID subkeys and spoof DeviceDesc and Mfg values."""
+    def _spoof_hid_devices(self, hid_base):
+        """Enumerate HID subkeys and replace real device info with generic."""
         count = 0
         try:
             base_key = winreg.OpenKey(
@@ -763,43 +634,33 @@ class SystemSpoofer:
                                 instance = winreg.EnumKey(vid_key, j)
                                 instance_path = f"{vid_path}\\{instance}"
 
-                                # Detect device type from current description
                                 current_desc = read_reg_value(
                                     winreg.HKEY_LOCAL_MACHINE, instance_path, "DeviceDesc"
                                 )
                                 dtype = self._detect_device_type(current_desc)
 
-                                if dtype in device_types:
-                                    device_list = brand.get(dtype, [])
-                                    if device_list:
-                                        fake_device = random.choice(device_list)
-                                        fake_name, fake_id = fake_device
+                                if dtype and GENERIC_DEVICES.get(dtype):
+                                    fake_name, fake_id = random.choice(GENERIC_DEVICES[dtype])
+                                    old_desc = current_desc
 
-                                        old_desc = current_desc
-                                        new_desc = f"@oem.inf,%{fake_id}%;{fake_name}"
-
-                                        set_reg_value(
-                                            winreg.HKEY_LOCAL_MACHINE,
-                                            instance_path, "DeviceDesc",
-                                            new_desc,
-                                        )
-                                        set_reg_value(
-                                            winreg.HKEY_LOCAL_MACHINE,
-                                            instance_path, "Mfg",
-                                            f"@oem.inf,%mfg%;{brand['manufacturer']}",
-                                        )
-                                        # FriendlyName is shown in Device Manager
-                                        set_reg_value(
-                                            winreg.HKEY_LOCAL_MACHINE,
-                                            instance_path, "FriendlyName",
-                                            fake_name,
-                                        )
-                                        log_change(
-                                            f"Peripheral_HID_{dtype}",
-                                            old_desc, fake_name,
-                                        )
-                                        print(f"  [+] HID {dtype}: {fake_name}")
-                                        count += 1
+                                    set_reg_value(
+                                        winreg.HKEY_LOCAL_MACHINE,
+                                        instance_path, "DeviceDesc",
+                                        f"@input.inf,%{fake_id}%;{fake_name}",
+                                    )
+                                    set_reg_value(
+                                        winreg.HKEY_LOCAL_MACHINE,
+                                        instance_path, "Mfg",
+                                        f"@input.inf,%mfg%;{GENERIC_MANUFACTURER}",
+                                    )
+                                    set_reg_value(
+                                        winreg.HKEY_LOCAL_MACHINE,
+                                        instance_path, "FriendlyName",
+                                        fake_name,
+                                    )
+                                    log_change(f"Peripheral_HID_{dtype}", old_desc, fake_name)
+                                    print(f"  [+] HID {dtype}: {old_desc} -> {fake_name}")
+                                    count += 1
                                 j += 1
                             except OSError:
                                 break
@@ -814,8 +675,8 @@ class SystemSpoofer:
             pass
         return count
 
-    def _spoof_usb_devices(self, usb_base, brand):
-        """Enumerate USB subkeys and spoof peripheral descriptors."""
+    def _spoof_usb_devices(self, usb_base):
+        """Enumerate USB subkeys and replace real peripheral info with generic."""
         count = 0
         try:
             base_key = winreg.OpenKey(
@@ -826,7 +687,6 @@ class SystemSpoofer:
             while True:
                 try:
                     vid_pid = winreg.EnumKey(base_key, i)
-                    # Only process VID_/PID_ entries (actual USB devices)
                     if "VID_" not in vid_pid.upper():
                         i += 1
                         continue
@@ -847,30 +707,26 @@ class SystemSpoofer:
                                 )
                                 dtype = self._detect_device_type(current_desc)
 
-                                if dtype and brand.get(dtype):
-                                    fake_device = random.choice(brand[dtype])
-                                    fake_name, fake_id = fake_device
+                                if dtype and GENERIC_DEVICES.get(dtype):
+                                    fake_name, fake_id = random.choice(GENERIC_DEVICES[dtype])
 
                                     set_reg_value(
                                         winreg.HKEY_LOCAL_MACHINE,
                                         instance_path, "DeviceDesc",
-                                        f"@oem.inf,%{fake_id}%;{fake_name}",
+                                        f"@input.inf,%{fake_id}%;{fake_name}",
                                     )
                                     set_reg_value(
                                         winreg.HKEY_LOCAL_MACHINE,
                                         instance_path, "Mfg",
-                                        f"@oem.inf,%mfg%;{brand['manufacturer']}",
+                                        f"@input.inf,%mfg%;{GENERIC_MANUFACTURER}",
                                     )
                                     set_reg_value(
                                         winreg.HKEY_LOCAL_MACHINE,
                                         instance_path, "FriendlyName",
                                         fake_name,
                                     )
-                                    log_change(
-                                        f"Peripheral_USB_{dtype}",
-                                        current_desc, fake_name,
-                                    )
-                                    print(f"  [+] USB {dtype}: {fake_name}")
+                                    log_change(f"Peripheral_USB_{dtype}", current_desc, fake_name)
+                                    print(f"  [+] USB {dtype}: {current_desc} -> {fake_name}")
                                     count += 1
                                 j += 1
                             except OSError:
@@ -886,22 +742,19 @@ class SystemSpoofer:
             pass
         return count
 
-    def _spoof_usb_audio(self, brand):
-        """Spoof USB audio device descriptions (headsets/speakers)."""
+    def _spoof_usb_audio(self):
+        """Replace real USB audio device descriptions with generic."""
         count = 0
         audio_class = r"SYSTEM\CurrentControlSet\Control\Class\{4D36E96C-E325-11CE-BFC1-08002BE10318}"
-        if not brand.get("headsets"):
-            return 0
 
         for idx in range(20):
             subkey_path = f"{audio_class}\\{idx:04d}"
             desc = read_reg_value(winreg.HKEY_LOCAL_MACHINE, subkey_path, "DriverDesc")
             if desc is None:
                 continue
-            desc_lower = desc.lower() if desc else ""
+            desc_lower = desc.lower()
             if any(kw in desc_lower for kw in ["usb", "audio", "headset", "headphone", "microphone"]):
-                fake_headset = random.choice(brand["headsets"])
-                fake_name, _ = fake_headset
+                fake_name, _ = random.choice(GENERIC_DEVICES["headsets"])
                 old = desc
                 set_reg_value(
                     winreg.HKEY_LOCAL_MACHINE, subkey_path,
@@ -909,17 +762,17 @@ class SystemSpoofer:
                 )
                 set_reg_value(
                     winreg.HKEY_LOCAL_MACHINE, subkey_path,
-                    "ProviderName", brand["manufacturer"],
+                    "ProviderName", GENERIC_MANUFACTURER,
                 )
                 log_change("Peripheral_Audio", old, fake_name)
-                print(f"  [+] Audio device: {fake_name}")
+                print(f"  [+] Audio: {old} -> {fake_name}")
                 count += 1
         return count
 
-    def _spoof_class_driver(self, class_path, brand, device_type):
-        """Spoof driver descriptions inside a device class registry key."""
+    def _spoof_class_driver(self, class_path, device_type):
+        """Replace real driver descriptions with generic inside a device class."""
         count = 0
-        device_list = brand.get(device_type, [])
+        device_list = GENERIC_DEVICES.get(device_type, [])
         if not device_list:
             return 0
 
@@ -928,8 +781,7 @@ class SystemSpoofer:
             desc = read_reg_value(winreg.HKEY_LOCAL_MACHINE, subkey_path, "DriverDesc")
             if desc is None:
                 continue
-            fake_device = random.choice(device_list)
-            fake_name, _ = fake_device
+            fake_name, _ = random.choice(device_list)
             old = desc
             set_reg_value(
                 winreg.HKEY_LOCAL_MACHINE, subkey_path,
@@ -937,10 +789,10 @@ class SystemSpoofer:
             )
             set_reg_value(
                 winreg.HKEY_LOCAL_MACHINE, subkey_path,
-                "ProviderName", brand["manufacturer"],
+                "ProviderName", GENERIC_MANUFACTURER,
             )
             log_change(f"Peripheral_Class_{device_type}", old, fake_name)
-            print(f"  [+] Class {device_type}: {fake_name}")
+            print(f"  [+] Class {device_type}: {old} -> {fake_name}")
             count += 1
         return count
 

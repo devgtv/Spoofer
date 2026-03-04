@@ -15,21 +15,9 @@ A lightweight Python tool to spoof hardware and software identifiers on Windows 
 | 7 | **Disk IDs** | Disk and CD-ROM enumeration strings |
 | 8 | **GPU ID** | Display adapter registry identifiers |
 | 9 | **SMBIOS / BIOS** | Baseboard serial, system serial, BIOS version |
-| 10 | **Peripheral Drivers** | Mask mouse, keyboard, headset & controller as a chosen brand |
+| 10 | **Peripheral Drivers** | Auto-detect connected peripherals and replace driver info with generic names |
 | 11 | **TPM Reset** | Clear TPM-derived keys and registry cache (EK is hardware-bound) |
 | 12 | **Spoof ALL** | Run all of the above in one go |
-
-## Brand Profiles (Peripherals)
-
-When spoofing peripherals, you choose a brand profile to disguise your devices:
-
-| Profile | Devices included |
-|---|---|
-| **Razer** | DeathAdder V3 Pro, Huntsman V3 Pro, BlackShark V2 Pro, Wolverine V2 Pro, etc. |
-| **Logitech** | G Pro X Superlight 2, G Pro X TKL, G Pro X 2 Lightspeed, F710, etc. |
-| **Corsair** | M75 Air, K100 RGB, Virtuoso Pro, etc. |
-| **SteelSeries** | Aerox 5, Apex Pro TKL, Arctis Nova Pro, etc. |
-| **Generic** | USB Optical Mouse, Standard Keyboard, USB Audio Device, USB Gamepad |
 
 ## Requirements
 
